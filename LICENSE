@@ -1,0 +1,123 @@
+Copyright (c) 2025 asenyeroao-ct
+All rights reserved.
+
+────────────────────────────────────────────
+中文授權條款（正式版）
+────────────────────────────────────────────
+
+一、著作權聲明
+本專案（包含原始碼、圖片、配置檔、文件與所有相關內容）之著作權及其所有智慧財產權，均由原作者 asenyeroao-ct 所有。除本授權條款允許之外，任何人不得以任何方式使用、複製、修改、散佈或利用本專案。
+
+二、授權範圍（僅允許極有限度的使用）
+使用者僅被授權進行：
+1. 個人、非商業性質的安裝與使用。
+2. 在不修改、不移除著作權資訊的前提下閱讀與研究本專案。
+
+除上述兩點之外，**所有權利一律保留並屬於原作者**。
+
+三、禁止行為（以下行為一律禁止）
+未經原作者書面授權，嚴禁：
+
+1. **修改或製作衍生作品**
+   - 禁止修改原始碼
+   - 禁止反編譯、反向工程、轉譯
+   - 禁止替換功能、合併其他專案、或以本專案為基礎延伸開發
+
+2. **商業用途**
+   - 禁止直接或間接用於收費服務、付費產品、代安裝、技術支援
+   - 禁止以任何方式盈利，包括廣告收益、訂閱服務、商業集成
+
+3. **重新發布與散佈**
+   - 禁止將本專案重新上傳到任何平台（如 GitHub、Gitee、GitLab、雲端硬碟、論壇、Discord、Telegram、私有伺服器等）
+   - 禁止重新打包、壓縮、轉檔後分送他人
+   - 禁止透過任何管道公開分享本專案或其部分內容
+
+4. **移除或隱藏著作權聲明**
+   - 禁止刪除、改動 LICENSE、作者名稱、專案名稱
+   - 禁止加入誤導性聲明，暗示他人擁有本專案著作權
+
+四、使用者義務
+使用者在允許範圍內使用本專案時，必須：
+
+1. 清楚標示原作者名稱：**asenyeroao-ct**
+2. 不得隱藏或移除任何著作權文字或水印
+3. 不得向第三方提供已修改或未修改的本專案檔案
+
+五、免責聲明
+1. 本專案以「現狀」提供，不附帶任何形式之明示或默示擔保。
+2. 原作者不對因使用本專案而導致的任何損害、損失、資料遺失、系統異常或法律糾紛負責。
+3. 使用者需自行承擔所有使用風險。
+
+六、無授權事項
+除本授權條款明確允許，原作者並不授予：
+- 專利權
+- 商標使用權
+- 分發權
+- 修改與合併權
+- 商用許可
+- 再授權權
+
+七、授權外使用
+任何超出本授權範圍的使用行為，必須事先取得原作者 **書面授權**，否則視為侵權。
+
+────────────────────────────────────────────
+English License Terms (Full Version)
+────────────────────────────────────────────
+
+1. Copyright Notice
+All source code, documents, images, configuration files, and related materials in this project are the intellectual property of the original author, asenyeroao-ct. Except as explicitly permitted in this license, no user may copy, modify, distribute, or utilize the project in any form.
+
+2. Permitted Use (Strictly Limited)
+Users are granted permission only for:
+1) Personal, non-commercial installation and use.
+2) Reading and studying the project without modifying or removing copyright notices.
+
+All rights not expressly granted are reserved by the author.
+
+3. Prohibited Actions (Strictly Forbidden)
+Without prior written permission from the author, the following actions are explicitly prohibited:
+
+A. Modification or Derivative Works
+- No modifying the source code
+- No reverse engineering, decompiling, or translating
+- No integration with other projects, replacement of components, or creation of derivative works
+
+B. Commercial Use
+- No paid services, paid installations, commercial integrations, or monetized content
+- No direct or indirect profit generation, including ads, subscription services, or resale
+
+C. Redistribution or Re-uploading
+- No re-uploading to any platform (GitHub, GitLab, Gitee, cloud drives, forums, Discord, Telegram, etc.)
+- No repackaging, archiving, or distributing in any form
+- No public or private sharing of the project or any of its contents
+
+D. Removal or Alteration of Copyright Information
+- No removing or altering LICENSE, author credits, or project name
+- No misleading claims regarding ownership or authorship
+
+4. User Obligations
+Users must:
+- Clearly credit the original author: **asenyeroao-ct**
+- Retain all copyright notices
+- Not distribute modified or unmodified copies to any third party
+
+5. Disclaimer of Warranty
+This project is provided “as is,” without warranty of any kind, express or implied.  
+The author is not liable for any damages, data loss, system failures, or legal issues arising from the use of this project.  
+Users assume all responsibility and risk.
+
+6. No Additional Rights Granted
+This license does NOT provide:
+- Patent rights  
+- Trademark rights  
+- Distribution rights  
+- Modification rights  
+- Commercial rights  
+- Sublicensing rights  
+
+7. Uses Outside This License
+Any use beyond the permissions granted here requires prior written authorization from the author.  
+Unauthorized use constitutes infringement.
+
+────────────────────────────────────────────
+End of License
