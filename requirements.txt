@@ -1,0 +1,10 @@
+opencv-python>=4.8.0
+numpy>=1.24.0
+pyserial>=3.5
+PyQt5>=5.15.0
+mss>=9.0.0
+bettercam>=1.0.0
+dxcam>=0.0.5
+# BetterCam GPU 模式需要 cupy（根據 CUDA 版本選擇一個）
+cupy-cuda12x>=12.0.0  # CUDA 12.x（預編譯版本，安裝快速）
+

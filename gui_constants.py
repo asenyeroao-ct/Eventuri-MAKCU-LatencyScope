@@ -1,0 +1,103 @@
+"""
+GUI 常量定義
+集中管理所有 GUI 相關的常量，提高維護性和性能
+"""
+
+# UI 尺寸常量
+WINDOW_WIDTH = 1200
+WINDOW_HEIGHT = 800
+WINDOW_X = 100
+WINDOW_Y = 100
+
+# 按鈕尺寸
+BUTTON_MIN_HEIGHT = 40
+
+# 輸入框範圍
+PORT_MIN = 1
+PORT_MAX = 65535
+FPS_MIN = 30
+FPS_MAX = 240
+CAPTURE_FPS_MIN = 1
+CAPTURE_FPS_MAX = 300
+DEVICE_INDEX_MIN = 0
+DEVICE_INDEX_MAX = 10
+WIDTH_MIN = 320
+WIDTH_MAX = 7680
+HEIGHT_MIN = 240
+HEIGHT_MAX = 4320
+RANGE_MIN = 0
+RANGE_MAX = 7680
+OFFSET_MIN = -3840
+OFFSET_MAX = 3840
+TOLERANCE_MIN = 0
+TOLERANCE_MAX = 100
+DETECTION_SIZE_MIN = 2
+DETECTION_SIZE_MAX = 50
+COLOR_MIN = 0
+COLOR_MAX = 255
+
+# 延遲範圍
+DELAY_MIN = 0
+DELAY_MAX = 99999
+DELAY_SLIDER_MAX = 500
+COOLDOWN_MIN = 0
+COOLDOWN_MAX = 10000
+
+# 間距和邊距
+LAYOUT_SPACING = 15
+LAYOUT_MARGINS = 20
+FORM_SPACING = 8
+LOG_PANEL_MARGINS = 10
+LOG_PANEL_MAX_HEIGHT = 150
+
+# 定時器間隔（毫秒）
+UPDATE_TIMER_INTERVAL = 33  # 約 30 FPS
+AUTO_CONNECT_DELAY = 500
+
+# 顏色預覽框尺寸
+COLOR_PREVIEW_WIDTH = 40
+COLOR_PREVIEW_HEIGHT = 30
+
+# 字體設置
+FONT_FAMILY = "Microsoft YaHei UI"
+FONT_SIZE = 9
+STATUS_FONT_SIZE = 14
+STATUS_FONT_FAMILY = "Arial"
+STATS_FONT_FAMILY = "Consolas"
+STATS_FONT_SIZE = 9
+LOG_FONT_FAMILY = "Consolas"
+LOG_FONT_SIZE = 9
+
+# 樣式顏色
+COLOR_PRIMARY = "#00E5FF"  # 青色
+COLOR_ERROR = "#ff5555"    # 紅色
+COLOR_SUCCESS = "#55ff55"  # 綠色
+COLOR_WARNING = "#ffff55"  # 黃色
+COLOR_BACKGROUND = "#121212"
+COLOR_PANEL = "rgba(30, 30, 30, 0.6)"
+COLOR_INPUT = "#1E1E1E"
+COLOR_BORDER = "#333333"
+COLOR_TEXT = "#E0E0E0"
+COLOR_TEXT_DARK = "#888888"
+
+# 連接狀態樣式
+STYLE_CONNECTED = "background-color: #ff5555;"
+STYLE_DISCONNECTED = ""
+
+# 檢測狀態樣式
+STATUS_STYLE_BASE = "padding: 20px; border-radius: 5px; color: #000; font-weight: bold;"
+STATUS_STYLE_FROM = STATUS_STYLE_BASE + "background-color: #ff5555; color: white;"
+STATUS_STYLE_TO = STATUS_STYLE_BASE + "background-color: #55ff55; color: black;"
+STATUS_STYLE_DETECTED = STATUS_STYLE_BASE + "background-color: #ffff55; color: black;"
+STATUS_STYLE_WAITING = "padding: 20px; background-color: #2D2D2D; border: 1px solid #444; border-radius: 5px; color: #888;"
+STATUS_STYLE_NOT_STARTED = "padding: 20px; background-color: #1E1E1E; border: 1px dashed #444; border-radius: 5px; color: #666;"
+
+# 滑鼠狀態樣式
+MOUSE_STYLE_CONNECTED = "color: green; font-weight: bold;"
+MOUSE_STYLE_DISCONNECTED = "color: red; font-weight: bold;"
+
+# 連接信息樣式
+CONNECTION_INFO_CONNECTED = "color: #00E5FF; font-size: 9pt;"
+CONNECTION_INFO_DISCONNECTED = "color: #888888; font-size: 9pt;"
+CONNECTION_INFO_ERROR = "color: #FF5555; font-size: 9pt;"
+
