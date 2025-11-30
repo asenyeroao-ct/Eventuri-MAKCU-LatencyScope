@@ -236,7 +236,7 @@
     "debug_stopping_tcp": "停止 TCP 擷取",
     "debug_stopping_srt": "停止 SRT 擷取",
     "debug_tcp_startup": "TCP 啟動",
-    "debug_srt_startup": "SRT 啟動"
+    "debug_srt_startup": "SRT 啟動",
     "debug_capture_thread": "擷取線程",
     "debug_frame_processor_error": "幀處理器錯誤",
     "debug_color_detection_error": "顏色檢測錯誤",
