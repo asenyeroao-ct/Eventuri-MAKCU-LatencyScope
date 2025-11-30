@@ -8,20 +8,21 @@ All rights reserved.
 一、著作權聲明
 本專案（包含原始碼、圖片、配置檔、文件與所有相關內容）之著作權及其所有智慧財產權，均由原作者 asenyeroao-ct 所有。除本授權條款允許之外，任何人不得以任何方式使用、複製、修改、散佈或利用本專案。
 
-二、授權範圍（僅允許極有限度的使用）
-使用者僅被授權進行：
+二、授權範圍
+使用者被授權進行：
 1. 個人、非商業性質的安裝與使用。
-2. 在不修改、不移除著作權資訊的前提下閱讀與研究本專案。
+2. 閱讀與研究本專案。
+3. **修改原始碼**（需遵守第四條使用者義務）。
 
-除上述兩點之外，**所有權利一律保留並屬於原作者**。
+除本授權條款明確允許之外，**所有權利一律保留並屬於原作者**。
 
 三、禁止行為（以下行為一律禁止）
 未經原作者書面授權，嚴禁：
 
-1. **修改或製作衍生作品**
-   - 禁止修改原始碼
-   - 禁止反編譯、反向工程、轉譯
-   - 禁止替換功能、合併其他專案、或以本專案為基礎延伸開發
+1. **製作衍生作品並重新發布**
+   - 禁止將修改後的代碼重新上傳到公開平台（如 GitHub、Gitee、GitLab 等）
+   - 禁止反編譯、反向工程、轉譯後重新發布
+   - 禁止替換功能、合併其他專案後重新發布
 
 2. **商業用途**
    - 禁止直接或間接用於收費服務、付費產品、代安裝、技術支援
@@ -37,11 +38,20 @@ All rights reserved.
    - 禁止加入誤導性聲明，暗示他人擁有本專案著作權
 
 四、使用者義務
-使用者在允許範圍內使用本專案時，必須：
+使用者在允許範圍內使用或修改本專案時，必須：
 
-1. 清楚標示原作者名稱：**asenyeroao-ct**
-2. 不得隱藏或移除任何著作權文字或水印
-3. 不得向第三方提供已修改或未修改的本專案檔案
+1. **清楚標示原作者名稱：asenyeroao-ct**
+   - 在修改後的代碼中保留原始著作權聲明
+   - 在 README 或相關文件中標註原作者
+   - 不得隱藏或移除任何著作權文字或水印
+
+2. **標註修改內容**
+   - 建議在修改的檔案中註明修改日期和修改者
+   - 建議保留原始作者的註釋和說明
+
+3. **不得重新發布**
+   - 不得將已修改或未修改的本專案檔案重新上傳到公開平台
+   - 不得向第三方提供本專案檔案（除非獲得原作者書面授權）
 
 五、免責聲明
 1. 本專案以「現狀」提供，不附帶任何形式之明示或默示擔保。
@@ -52,10 +62,11 @@ All rights reserved.
 除本授權條款明確允許，原作者並不授予：
 - 專利權
 - 商標使用權
-- 分發權
-- 修改與合併權
+- 分發權（重新發布到公開平台）
 - 商用許可
 - 再授權權
+
+**注意**：修改權已在本授權條款中授予，但需遵守第四條使用者義務。
 
 七、授權外使用
 任何超出本授權範圍的使用行為，必須事先取得原作者 **書面授權**，否則視為侵權。
@@ -67,20 +78,21 @@ English License Terms (Full Version)
 1. Copyright Notice
 All source code, documents, images, configuration files, and related materials in this project are the intellectual property of the original author, asenyeroao-ct. Except as explicitly permitted in this license, no user may copy, modify, distribute, or utilize the project in any form.
 
-2. Permitted Use (Strictly Limited)
-Users are granted permission only for:
+2. Permitted Use
+Users are granted permission for:
 1) Personal, non-commercial installation and use.
-2) Reading and studying the project without modifying or removing copyright notices.
+2) Reading and studying the project.
+3) **Modifying the source code** (subject to Section 4 User Obligations).
 
 All rights not expressly granted are reserved by the author.
 
 3. Prohibited Actions (Strictly Forbidden)
 Without prior written permission from the author, the following actions are explicitly prohibited:
 
-A. Modification or Derivative Works
-- No modifying the source code
-- No reverse engineering, decompiling, or translating
-- No integration with other projects, replacement of components, or creation of derivative works
+A. Redistribution of Modified or Derivative Works
+- No re-uploading modified code to public platforms (GitHub, GitLab, Gitee, etc.)
+- No reverse engineering, decompiling, or translating for redistribution
+- No integration with other projects or replacement of components for redistribution
 
 B. Commercial Use
 - No paid services, paid installations, commercial integrations, or monetized content
@@ -96,10 +108,20 @@ D. Removal or Alteration of Copyright Information
 - No misleading claims regarding ownership or authorship
 
 4. User Obligations
-Users must:
-- Clearly credit the original author: **asenyeroao-ct**
-- Retain all copyright notices
-- Not distribute modified or unmodified copies to any third party
+Users must, when using or modifying this project:
+
+1. **Clearly credit the original author: asenyeroao-ct**
+   - Retain original copyright notices in modified code
+   - Credit the original author in README or related documentation
+   - Do not hide or remove any copyright text or watermarks
+
+2. **Document modifications**
+   - It is recommended to note modification date and modifier in modified files
+   - It is recommended to retain original author's comments and documentation
+
+3. **No redistribution**
+   - Do not re-upload modified or unmodified copies to public platforms
+   - Do not provide project files to third parties (unless written authorization is obtained from the original author)
 
 5. Disclaimer of Warranty
 This project is provided “as is,” without warranty of any kind, express or implied.  
@@ -110,10 +132,11 @@ Users assume all responsibility and risk.
 This license does NOT provide:
 - Patent rights  
 - Trademark rights  
-- Distribution rights  
-- Modification rights  
+- Distribution rights (re-uploading to public platforms)
 - Commercial rights  
-- Sublicensing rights  
+- Sublicensing rights
+
+**Note**: Modification rights are granted in this license, subject to Section 4 User Obligations.  
 
 7. Uses Outside This License
 Any use beyond the permissions granted here requires prior written authorization from the author.  
