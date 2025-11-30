@@ -122,6 +122,7 @@
     "receive_fps": "接收 FPS",
     "process_fps": "處理 FPS",
     "decode_fps": "解碼 FPS",
+    "capture_fps": "捕获 FPS",
     "buffer": "緩衝",
     "queue": "隊列",
     "delay": "延遲",

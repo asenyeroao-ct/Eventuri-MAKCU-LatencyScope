@@ -1,6 +1,6 @@
 {
-    "capture_mode": "srt",
-    "bettercam_mode": "cpu",
+    "capture_mode": "bettercam",
+    "bettercam_mode": "gpu",
     "udp_ip": "192.168.5.52",
     "udp_port": 1314,
     "target_fps": 240,

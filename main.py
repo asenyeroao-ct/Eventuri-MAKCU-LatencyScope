@@ -3605,12 +3605,9 @@ class MainWindow(QMainWindow):
             
             # 更新統計信息
             try:
+                stats_text = ""  # 初始化 stats_text 避免未定義錯誤
                 if mode_data == "udp" and self.udp_receiver:
                     stats = self.udp_receiver.get_performance_stats()
-                elif mode_data == "tcp" and self.tcp_receiver:
-                    stats = self.tcp_receiver.get_performance_stats()
-                elif mode_data == "srt" and self.srt_receiver:
-                    stats = self.srt_receiver.get_performance_stats()
                     # UDP 模式使用自己的 FPS 統計
                     self.capture_fps = stats['current_fps']
                     queue_info = f"{t('detection_queue', '檢測隊列')}: {self.frame_processing_queue.qsize()}/{self.frame_processing_queue.maxsize}"
@@ -3671,13 +3668,21 @@ class MainWindow(QMainWindow):
                     if time.time() - self._last_fps_log_time > 5.0:
                         logger.debug(f"FPS 計算: frame_count={current_count}, elapsed={elapsed:.2f}s, fps={fps:.1f}, capture_fps={self.capture_fps:.1f}")
                         self._last_fps_log_time = time.time()
-                    stats_text = f"{t('capture_mode', '擷取模式')}: {self.capture_mode_combo.currentText()} | {queue_info}"
-                    # 總是顯示 FPS，即使為 0
-                    stats_text = f"FPS: {fps:.1f} | " + stats_text
+                    # 構建統計文本，總是顯示 FPS
+                    mode_name = self.capture_mode_combo.currentText()
+                    stats_text = f"{t('capture_fps', '擷取 FPS')}: {fps:.1f} | {t('capture_mode', '擷取模式')}: {mode_name} | {queue_info}"
                 else:
                     # 默認統計
                     queue_info = f"{t('detection_queue', '檢測隊列')}: {self.frame_processing_queue.qsize()}/{self.frame_processing_queue.maxsize}"
-                    stats_text = f"{t('capture_mode', '擷取模式')}: {self.capture_mode_combo.currentText()} | {queue_info}"
+                    mode_name = self.capture_mode_combo.currentText()
+                    stats_text = f"{t('capture_mode', '擷取模式')}: {mode_name} | {queue_info}"
+                
+                # 確保 stats_text 已設置，避免未定義錯誤
+                if not stats_text:
+                    queue_info = f"{t('detection_queue', '檢測隊列')}: {self.frame_processing_queue.qsize()}/{self.frame_processing_queue.maxsize}"
+                    mode_name = self.capture_mode_combo.currentText()
+                    stats_text = f"{t('capture_mode', '擷取模式')}: {mode_name} | {queue_info}"
+                
                 self.stats_label.setText(stats_text)
             except Exception as e:
                 logger.error(f"Failed to get stats: {e}")

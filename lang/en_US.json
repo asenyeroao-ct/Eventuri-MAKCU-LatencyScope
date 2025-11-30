@@ -122,6 +122,7 @@
     "receive_fps": "Receive FPS",
     "process_fps": "Process FPS",
     "decode_fps": "Decode FPS",
+    "capture_fps": "Capture FPS",
     "buffer": "Buffer",
     "queue": "Queue",
     "delay": "Delay",
