@@ -11,7 +11,12 @@ if not exist venv (
     exit /b 1
 )
 
-call venv\Scripts\activate.bat
+if not exist "venv\Scripts\activate.bat" (
+    echo [ERROR] Virtual environment script not found
+    pause
+    exit /b 1
+)
+call "venv\Scripts\activate.bat"
 if errorlevel 1 (
     echo [ERROR] Failed to activate virtual environment
     pause

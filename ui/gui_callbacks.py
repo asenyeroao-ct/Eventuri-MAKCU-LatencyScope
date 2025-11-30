@@ -4,8 +4,8 @@ GUI 回調函數定義
 """
 
 from PyQt5.QtCore import Qt, QTimer
-from language_manager import t
-from gui_constants import *
+from ui.language_manager import t
+from ui.gui_constants import *
 
 
 class GUICallbacks:

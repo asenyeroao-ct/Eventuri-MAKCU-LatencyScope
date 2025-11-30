@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QCheckBox, QFrame, QGridLayout, QSlider, QComboBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
-from language_manager import t
-from gui_constants import *
+from ui.language_manager import t
+from ui.gui_constants import *
 
 
 def create_top_bar(language_manager, config_manager):

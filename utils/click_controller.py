@@ -8,7 +8,7 @@ import logging
 import threading
 import random
 from typing import Optional, Tuple
-import mouse as mouse_module
+import utils.mouse as mouse_module
 
 logger = logging.getLogger(__name__)
 
@@ -157,7 +157,7 @@ class ClickController:
         """
         with self._click_lock:
             try:
-                from mouse import makcu, makcu_lock
+                from utils.mouse import makcu, makcu_lock
                 
                 # 獲取隨機延遲值
                 press_delay = self.get_random_press_delay()
@@ -208,7 +208,7 @@ class ClickController:
             return False
         
         try:
-            from mouse import makcu, makcu_lock
+            from utils.mouse import makcu, makcu_lock
             
             # 獲取隨機延遲值用於測試
             press_delay = self.get_random_press_delay()

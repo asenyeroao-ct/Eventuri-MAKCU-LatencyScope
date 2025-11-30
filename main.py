@@ -16,32 +16,58 @@ from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QObject
 from PyQt5.QtGui import QImage, QPixmap, QFont
 
 # 導入詳細的日誌系統
-from debugLog import get_logger, log_exception, log_connection_event, log_state_change
+from utils.debugLog import get_logger, log_exception, log_connection_event, log_state_change
 
 # 初始化 logger - 使用新的日誌系統
 logger = get_logger(__name__)
 
 # 導入自定義模組 - 直接使用 OBS_UDP.py
 try:
-    from OBS_UDP import OBS_UDP_Receiver
+    from capture.OBS_UDP import OBS_UDP_Receiver
     logger.info("成功載入 OBS_UDP.py")
 except Exception as e:
     log_exception(e, context="載入 OBS_UDP 模組", additional_info={
         "模組": "OBS_UDP.py"
     })
     raise  # 如果無法載入 OBS_UDP.py，應該報錯
-from mouse import Mouse
-import mouse as mouse_module
-from debug_window import DebugWindowManager
-from color_detector import ColorDetector
-from click_controller import ClickController
-from config_manager import ConfigManager
-from CaptureCard import create_capture_card_camera, CaptureCardCamera
-from language_manager import get_language_manager, t
+
+# 導入 OBS_TCP 模組
+try:
+    from capture.OBS_TCP import OBS_TCP_Receiver
+    TCP_AVAILABLE = True
+    logger.info("成功載入 OBS_TCP.py")
+except Exception as e:
+    TCP_AVAILABLE = False
+    log_exception(e, context="載入 OBS_TCP 模組", additional_info={
+        "模組": "OBS_TCP.py",
+        "影響": "TCP 擷取模式不可用"
+    })
+    logger.warning(f"OBS_TCP 未安裝或載入失敗，TCP 擷取模式不可用: {e}")
+
+# 導入 OBS_SRT 模組
+try:
+    from capture.OBS_SRT import OBS_SRT_Receiver
+    SRT_AVAILABLE = True
+    logger.info("成功載入 OBS_SRT.py")
+except Exception as e:
+    SRT_AVAILABLE = False
+    log_exception(e, context="載入 OBS_SRT 模組", additional_info={
+        "模組": "OBS_SRT.py",
+        "影響": "SRT 擷取模式不可用"
+    })
+    logger.warning(f"OBS_SRT 未安裝或載入失敗，SRT 擷取模式不可用: {e}")
+from utils.mouse import Mouse
+import utils.mouse as mouse_module
+from ui.debug_window import DebugWindowManager
+from utils.color_detector import ColorDetector
+from utils.click_controller import ClickController
+from utils.config_manager import ConfigManager
+from capture.CaptureCard import create_capture_card_camera, CaptureCardCamera
+from ui.language_manager import get_language_manager, t
 
 # 嘗試導入可選的擷取庫
 try:
-    from mss_capture import create_mss_capture, MSSCapture
+    from capture.mss_capture import create_mss_capture, MSSCapture
     MSS_AVAILABLE = True
     logger.info("MSS 擷取庫載入成功")
 except ImportError as e:
@@ -53,7 +79,7 @@ except ImportError as e:
     logger.warning(f"mss 未安裝或載入失敗，MSS 擷取模式不可用: {e}")
 
 try:
-    from bettercam_capture import create_bettercam_capture, BetterCamCapture
+    from capture.bettercam_capture import create_bettercam_capture, BetterCamCapture
     BETTERCAM_AVAILABLE = True
     logger.info("BetterCam 擷取庫載入成功")
 except ImportError as e:
@@ -65,7 +91,7 @@ except ImportError as e:
     logger.warning(f"bettercam 未安裝或載入失敗，BetterCam 擷取模式不可用: {e}")
 
 try:
-    from dxgi_capture import create_dxgi_capture, DXGICapture
+    from capture.dxgi_capture import create_dxgi_capture, DXGICapture
     DXGI_AVAILABLE = True
     logger.info("DXGI 擷取庫載入成功")
 except ImportError as e:
@@ -77,7 +103,7 @@ except ImportError as e:
     logger.warning(f"dxcam 未安裝或載入失敗，DXGI 擷取模式不可用: {e}")
 
 try:
-    from ndi_capture import create_ndi_capture, NDICapture
+    from capture.ndi_capture import create_ndi_capture, NDICapture
     NDI_AVAILABLE = True
     logger.info("NDI 擷取庫載入成功")
 except ImportError as e:
@@ -358,6 +384,8 @@ class MainWindow(QMainWindow):
         
         # 初始化組件
         self.udp_receiver = None
+        self.tcp_receiver = None
+        self.srt_receiver = None
         self.capture_card_camera = None
         self.bettercam_camera = None
         self.mss_capture = None
@@ -591,6 +619,14 @@ class MainWindow(QMainWindow):
         
         self.capture_mode_combo = QComboBox()
         self.capture_mode_combo.addItem(t("udp", "UDP"), "udp")
+        if TCP_AVAILABLE:
+            self.capture_mode_combo.addItem(t("tcp", "TCP"), "tcp")
+        else:
+            self.capture_mode_combo.addItem(t("tcp", "TCP") + " " + t("tcp_not_installed", "[未安裝]"), "tcp")
+        if SRT_AVAILABLE:
+            self.capture_mode_combo.addItem(t("srt", "SRT"), "srt")
+        else:
+            self.capture_mode_combo.addItem(t("srt", "SRT") + " " + t("srt_not_installed", "[未安裝]"), "srt")
         self.capture_mode_combo.addItem(t("capture_card", "Capture Card"), "capture_card")
         if BETTERCAM_AVAILABLE:
             self.capture_mode_combo.addItem(t("bettercam_cpu", "BetterCam (CPU)"), "bettercam_cpu")
@@ -655,6 +691,74 @@ class MainWindow(QMainWindow):
         
         self.udp_settings_group.setLayout(udp_layout)
         layout.addWidget(self.udp_settings_group)
+        
+        # 1.5. TCP 設置面板
+        self.tcp_settings_group = QGroupBox(t("tcp_settings", "TCP 設置"))
+        tcp_layout = QFormLayout()
+        tcp_layout.setSpacing(8)
+        
+        self.tcp_ip_input = QLineEdit()
+        self.tcp_port_input = QSpinBox()
+        self.tcp_port_input.setRange(1, 65535)
+        self.tcp_fps_input = QSpinBox()
+        self.tcp_fps_input.setRange(30, 240)
+        self.tcp_server_mode_checkbox = QCheckBox()
+        
+        tcp_layout.addRow(t("ip_address", "IP 地址") + ":", self.tcp_ip_input)
+        tcp_layout.addRow(t("port", "端口") + ":", self.tcp_port_input)
+        tcp_layout.addRow(t("target_fps", "目標 FPS") + ":", self.tcp_fps_input)
+        tcp_layout.addRow(t("server_mode", "伺服器模式 (監聽連接)") + ":", self.tcp_server_mode_checkbox)
+        
+        # 本機IP顯示
+        self.tcp_local_ip_label = QLabel()
+        self.tcp_local_ip_label.setStyleSheet("color: #00E5FF; font-size: 9pt;")
+        self.tcp_local_ip_label.setWordWrap(True)
+        self._update_local_ip_display()
+        tcp_layout.addRow(t("local_ip", "本機 IP") + ":", self.tcp_local_ip_label)
+        
+        # 當前連接信息顯示
+        self.tcp_connection_info_label = QLabel(t("not_connected", "未連接"))
+        self.tcp_connection_info_label.setStyleSheet("color: #888888; font-size: 9pt;")
+        self.tcp_connection_info_label.setWordWrap(True)
+        tcp_layout.addRow(t("connection_info", "連接信息") + ":", self.tcp_connection_info_label)
+        
+        self.tcp_settings_group.setLayout(tcp_layout)
+        self.tcp_settings_group.setVisible(False)
+        layout.addWidget(self.tcp_settings_group)
+        
+        # 1.6. SRT 設置面板
+        self.srt_settings_group = QGroupBox(t("srt_settings", "SRT 設置"))
+        srt_layout = QFormLayout()
+        srt_layout.setSpacing(8)
+        
+        self.srt_ip_input = QLineEdit()
+        self.srt_port_input = QSpinBox()
+        self.srt_port_input.setRange(1, 65535)
+        self.srt_fps_input = QSpinBox()
+        self.srt_fps_input.setRange(30, 240)
+        self.srt_listener_mode_checkbox = QCheckBox()
+        
+        srt_layout.addRow(t("ip_address", "IP 地址") + ":", self.srt_ip_input)
+        srt_layout.addRow(t("port", "端口") + ":", self.srt_port_input)
+        srt_layout.addRow(t("target_fps", "目標 FPS") + ":", self.srt_fps_input)
+        srt_layout.addRow(t("listener_mode", "監聽模式 (等待連接)") + ":", self.srt_listener_mode_checkbox)
+        
+        # 本機IP顯示
+        self.srt_local_ip_label = QLabel()
+        self.srt_local_ip_label.setStyleSheet("color: #00E5FF; font-size: 9pt;")
+        self.srt_local_ip_label.setWordWrap(True)
+        self._update_local_ip_display()
+        srt_layout.addRow(t("local_ip", "本機 IP") + ":", self.srt_local_ip_label)
+        
+        # 當前連接信息顯示
+        self.srt_connection_info_label = QLabel(t("not_connected", "未連接"))
+        self.srt_connection_info_label.setStyleSheet("color: #888888; font-size: 9pt;")
+        self.srt_connection_info_label.setWordWrap(True)
+        srt_layout.addRow(t("connection_info", "連接信息") + ":", self.srt_connection_info_label)
+        
+        self.srt_settings_group.setLayout(srt_layout)
+        self.srt_settings_group.setVisible(False)
+        layout.addWidget(self.srt_settings_group)
         
         # 2. Capture Card 設置面板
         self.capture_card_settings_group = QGroupBox(t("capture_card_settings", "Capture Card 設置"))
@@ -1291,6 +1395,20 @@ class MainWindow(QMainWindow):
         self.port_input.setValue(self.config_manager.get("udp_port", 1234))
         self.udp_fps_input.setValue(self.config_manager.get("target_fps", 60))
         
+        # 載入 TCP 設置
+        if hasattr(self, 'tcp_ip_input'):
+            self.tcp_ip_input.setText(self.config_manager.get("tcp_ip", "192.168.0.1"))
+            self.tcp_port_input.setValue(self.config_manager.get("tcp_port", 1234))
+            self.tcp_fps_input.setValue(self.config_manager.get("tcp_fps", 60))
+            self.tcp_server_mode_checkbox.setChecked(self.config_manager.get("tcp_server_mode", False))
+        
+        # 載入 SRT 設置
+        if hasattr(self, 'srt_ip_input'):
+            self.srt_ip_input.setText(self.config_manager.get("srt_ip", "192.168.0.1"))
+            self.srt_port_input.setValue(self.config_manager.get("srt_port", 1234))
+            self.srt_fps_input.setValue(self.config_manager.get("srt_fps", 60))
+            self.srt_listener_mode_checkbox.setChecked(self.config_manager.get("srt_listener_mode", False))
+        
         # 載入Capture Card設置
         self.capture_device_index_input.setValue(self.config_manager.get("capture_device_index", 0))
         self.capture_width_input.setValue(self.config_manager.get("capture_width", 1920))
@@ -1393,6 +1511,8 @@ class MainWindow(QMainWindow):
         
         # 顯示/隱藏對應的設置面板
         self.udp_settings_group.setVisible(mode == "udp")
+        self.tcp_settings_group.setVisible(mode == "tcp")
+        self.srt_settings_group.setVisible(mode == "srt")
         self.capture_card_settings_group.setVisible(mode == "capture_card")
         self.mss_settings_group.setVisible(mode == "mss")
         self.bettercam_settings_group.setVisible(mode == "bettercam" or mode == "bettercam_cpu" or mode == "bettercam_gpu")
@@ -1406,7 +1526,7 @@ class MainWindow(QMainWindow):
         self.log(t("switched_to_capture_mode", "切換到擷取模式: {mode}").format(mode=self.capture_mode_combo.itemText(index)))
         
         # 更新連接按鈕文字
-        if mode == "udp":
+        if mode == "udp" or mode == "tcp" or mode == "srt":
             self.connect_btn.setText(t("connect_obs", "連接 OBS"))
         else:
             self.connect_btn.setText(t("connect", "連接"))
@@ -1432,6 +1552,34 @@ class MainWindow(QMainWindow):
                     "連接狀態": self.udp_receiver.is_connected if self.udp_receiver else "None"
                 })
                 logger.error(f"停止 UDP 時出錯: {e}")
+        
+        # 停止 TCP
+        if self.tcp_receiver and self.tcp_receiver.is_connected:
+            try:
+                self.tcp_receiver.disconnect()
+                self.tcp_receiver = None
+                self.log(t("tcp_disconnected", "已停止 TCP 擷取"))
+                log_connection_event("TCP 停止", {"狀態": "成功"})
+            except Exception as e:
+                log_exception(e, context="停止 TCP 擷取", additional_info={
+                    "擷取模式": "TCP",
+                    "連接狀態": self.tcp_receiver.is_connected if self.tcp_receiver else "None"
+                })
+                logger.error(f"停止 TCP 時出錯: {e}")
+        
+        # 停止 SRT
+        if self.srt_receiver and self.srt_receiver.is_connected:
+            try:
+                self.srt_receiver.disconnect()
+                self.srt_receiver = None
+                self.log(t("srt_disconnected", "已停止 SRT 擷取"))
+                log_connection_event("SRT 停止", {"狀態": "成功"})
+            except Exception as e:
+                log_exception(e, context="停止 SRT 擷取", additional_info={
+                    "擷取模式": "SRT",
+                    "連接狀態": self.srt_receiver.is_connected if self.srt_receiver else "None"
+                })
+                logger.error(f"停止 SRT 時出錯: {e}")
         
         # 停止 Capture Card
         if self.capture_card_camera:
@@ -1523,6 +1671,14 @@ class MainWindow(QMainWindow):
             "udp_ip": self.ip_input.text(),
             "udp_port": self.port_input.value(),
             "target_fps": self.udp_fps_input.value(),
+            "tcp_ip": self.tcp_ip_input.text() if hasattr(self, 'tcp_ip_input') else "192.168.0.1",
+            "tcp_port": self.tcp_port_input.value() if hasattr(self, 'tcp_port_input') else 1234,
+            "tcp_fps": self.tcp_fps_input.value() if hasattr(self, 'tcp_fps_input') else 60,
+            "tcp_server_mode": self.tcp_server_mode_checkbox.isChecked() if hasattr(self, 'tcp_server_mode_checkbox') else False,
+            "srt_ip": self.srt_ip_input.text() if hasattr(self, 'srt_ip_input') else "192.168.0.1",
+            "srt_port": self.srt_port_input.value() if hasattr(self, 'srt_port_input') else 1234,
+            "srt_fps": self.srt_fps_input.value() if hasattr(self, 'srt_fps_input') else 60,
+            "srt_listener_mode": self.srt_listener_mode_checkbox.isChecked() if hasattr(self, 'srt_listener_mode_checkbox') else False,
             "capture_device_index": self.capture_device_index_input.value(),
             "capture_width": self.capture_width_input.value(),
             "capture_height": self.capture_height_input.value(),
@@ -1634,6 +1790,14 @@ class MainWindow(QMainWindow):
             current_data = self.capture_mode_combo.currentData()
             self.capture_mode_combo.clear()
             self.capture_mode_combo.addItem(t("udp", "UDP"), "udp")
+            if TCP_AVAILABLE:
+                self.capture_mode_combo.addItem(t("tcp", "TCP"), "tcp")
+            else:
+                self.capture_mode_combo.addItem(t("tcp", "TCP") + " " + t("tcp_not_installed", "[未安裝]"), "tcp")
+            if SRT_AVAILABLE:
+                self.capture_mode_combo.addItem(t("srt", "SRT"), "srt")
+            else:
+                self.capture_mode_combo.addItem(t("srt", "SRT") + " " + t("srt_not_installed", "[未安裝]"), "srt")
             self.capture_mode_combo.addItem(t("capture_card", "Capture Card"), "capture_card")
             if BETTERCAM_AVAILABLE:
                 self.capture_mode_combo.addItem(t("bettercam_cpu", "BetterCam (CPU)"), "bettercam_cpu")
@@ -1702,6 +1866,16 @@ class MainWindow(QMainWindow):
                     self.connect_btn.setText(t("disconnect", "斷開連接"))
                 else:
                     self.connect_btn.setText(t("connect_obs", "連接 OBS"))
+            elif mode_data == "tcp":
+                if hasattr(self, 'tcp_receiver') and self.tcp_receiver and self.tcp_receiver.is_connected:
+                    self.connect_btn.setText(t("disconnect", "斷開連接"))
+                else:
+                    self.connect_btn.setText(t("connect_obs", "連接 OBS"))
+            elif mode_data == "srt":
+                if hasattr(self, 'srt_receiver') and self.srt_receiver and self.srt_receiver.is_connected:
+                    self.connect_btn.setText(t("disconnect", "斷開連接"))
+                else:
+                    self.connect_btn.setText(t("connect_obs", "連接 OBS"))
             else:
                 is_connected = False
                 if mode_data == "capture_card" and hasattr(self, 'capture_card_camera') and self.capture_card_camera:
@@ -1727,7 +1901,16 @@ class MainWindow(QMainWindow):
                 self.detection_status_label.setText(t("not_started", "未啟動"))
         
         if hasattr(self, 'stats_label'):
-            if not hasattr(self, 'udp_receiver') or not self.udp_receiver or not self.udp_receiver.is_connected:
+            mode_data = self.capture_mode_combo.currentData() if hasattr(self, 'capture_mode_combo') else None
+            is_connected = False
+            if mode_data == "udp":
+                is_connected = hasattr(self, 'udp_receiver') and self.udp_receiver and self.udp_receiver.is_connected
+            elif mode_data == "tcp":
+                is_connected = hasattr(self, 'tcp_receiver') and self.tcp_receiver and self.tcp_receiver.is_connected
+            elif mode_data == "srt":
+                is_connected = hasattr(self, 'srt_receiver') and self.srt_receiver and self.srt_receiver.is_connected
+            
+            if not is_connected and (mode_data == "udp" or mode_data == "tcp" or mode_data == "srt"):
                 if not hasattr(self, 'bettercam_camera') or not self.bettercam_camera or not self.bettercam_camera.running:
                     if not hasattr(self, 'mss_capture') or not self.mss_capture or not self.mss_capture.running:
                         if not hasattr(self, 'capture_card_camera') or not self.capture_card_camera:
@@ -1779,6 +1962,10 @@ class MainWindow(QMainWindow):
             is_connected = self.dxgi_capture is not None and self.dxgi_capture.running
         elif mode == "ndi":
             is_connected = self.ndi_capture is not None and self.ndi_capture.is_connected()
+        elif mode == "tcp":
+            is_connected = self.tcp_receiver is not None and self.tcp_receiver.is_connected
+        elif mode == "srt":
+            is_connected = self.srt_receiver is not None and self.srt_receiver.is_connected
         
         if not is_connected:
             # 連接
@@ -1813,6 +2000,82 @@ class MainWindow(QMainWindow):
                     })
                     self.log(t("connection_failed_error", "✗ 連接失敗: {error}").format(error=str(e)), error=True)
                     self.udp_receiver = None
+            
+            elif mode == "tcp":
+                if not TCP_AVAILABLE:
+                    self.log(t("tcp_not_installed", "✗ TCP 模組未安裝"), error=True)
+                    return
+                
+                ip = self.tcp_ip_input.text()
+                port = self.tcp_port_input.value()
+                fps = self.tcp_fps_input.value()
+                is_server = self.tcp_server_mode_checkbox.isChecked()
+                
+                self.log(t("connecting_to_tcp", "正在連接到 TCP {ip}:{port}...").format(ip=ip, port=port))
+                try:
+                    self.tcp_receiver = OBS_TCP_Receiver(ip, port, fps, is_server=is_server, max_workers=4)
+                    self.tcp_receiver.set_frame_callback(self.on_frame_received)
+                    
+                    if self.tcp_receiver.connect():
+                        self.log(t("tcp_connected_success", "✓ 成功連接到 OBS TCP 流"))
+                        self.connect_btn.setText(t("disconnect", "斷開連接"))
+                        self.connect_btn.setStyleSheet("background-color: #ff5555;")
+                        self.start_btn.setEnabled(True)
+                        self.stats_label.setText(t("waiting_for_frame_data", "等待畫面數據..."))
+                        self.frame_count = 0
+                        self.frame_count_start_time = time.time()
+                        QTimer.singleShot(100, self._update_connection_info)
+                    else:
+                        self.log(t("connection_failed", "✗ 連接失敗"), error=True)
+                        self.tcp_receiver = None
+                        self._update_connection_info()
+                except Exception as e:
+                    log_exception(e, context="TCP 連接", additional_info={
+                        "IP": self.tcp_ip_input.text(),
+                        "端口": self.tcp_port_input.value(),
+                        "目標 FPS": self.tcp_fps_input.value(),
+                        "伺服器模式": self.tcp_server_mode_checkbox.isChecked()
+                    })
+                    self.log(t("connection_failed_error", "✗ 連接失敗: {error}").format(error=str(e)), error=True)
+                    self.tcp_receiver = None
+            
+            elif mode == "srt":
+                if not SRT_AVAILABLE:
+                    self.log(t("srt_not_installed", "✗ SRT 模組未安裝"), error=True)
+                    return
+                
+                ip = self.srt_ip_input.text()
+                port = self.srt_port_input.value()
+                fps = self.srt_fps_input.value()
+                is_listener = self.srt_listener_mode_checkbox.isChecked()
+                
+                self.log(t("connecting_to_srt", "正在連接到 SRT {ip}:{port}...").format(ip=ip, port=port))
+                try:
+                    self.srt_receiver = OBS_SRT_Receiver(ip, port, fps, is_listener=is_listener, max_workers=4)
+                    self.srt_receiver.set_frame_callback(self.on_frame_received)
+                    
+                    if self.srt_receiver.connect():
+                        self.log(t("srt_connected_success", "✓ 成功連接到 OBS SRT 流"))
+                        self.connect_btn.setText(t("disconnect", "斷開連接"))
+                        self.connect_btn.setStyleSheet("background-color: #ff5555;")
+                        self.start_btn.setEnabled(True)
+                        self.stats_label.setText(t("waiting_for_frame_data", "等待畫面數據..."))
+                        self.frame_count = 0
+                        self.frame_count_start_time = time.time()
+                        QTimer.singleShot(100, self._update_connection_info)
+                    else:
+                        self.log(t("connection_failed", "✗ 連接失敗"), error=True)
+                        self.srt_receiver = None
+                        self._update_connection_info()
+                except Exception as e:
+                    log_exception(e, context="SRT 連接", additional_info={
+                        "IP": self.srt_ip_input.text(),
+                        "端口": self.srt_port_input.value(),
+                        "目標 FPS": self.srt_fps_input.value(),
+                        "監聽模式": self.srt_listener_mode_checkbox.isChecked()
+                    })
+                    self.log(t("connection_failed_error", "✗ 連接失敗: {error}").format(error=str(e)), error=True)
+                    self.srt_receiver = None
     
             elif mode == "capture_card":
                 self.log(t("connecting_capture_card", "正在連接 Capture Card..."))
@@ -2116,6 +2379,12 @@ class MainWindow(QMainWindow):
             if mode == "udp" and self.udp_receiver:
                 self.udp_receiver.disconnect()
                 self.udp_receiver = None
+            elif mode == "tcp" and self.tcp_receiver:
+                self.tcp_receiver.disconnect()
+                self.tcp_receiver = None
+            elif mode == "srt" and self.srt_receiver:
+                self.srt_receiver.disconnect()
+                self.srt_receiver = None
             elif mode == "capture_card" and self.capture_card_camera:
                 self.capture_card_camera.stop()
                 self.capture_card_camera = None
@@ -2537,26 +2806,80 @@ class MainWindow(QMainWindow):
     
     def _update_connection_info(self):
         """更新連接信息顯示"""
-        if self.udp_receiver and self.udp_receiver.is_connected and self.udp_receiver.socket:
+        mode_data = self.capture_mode_combo.currentData() if hasattr(self, 'capture_mode_combo') else None
+        
+        # UDP 連接信息
+        if mode_data == "udp" and self.udp_receiver and self.udp_receiver.is_connected and self.udp_receiver.socket:
             try:
-                # 獲取socket綁定的地址
                 sockname = self.udp_receiver.socket.getsockname()
                 bound_ip = sockname[0]
                 bound_port = sockname[1]
-                
                 self.current_connection_ip = bound_ip
                 self.current_connection_port = bound_port
-                
-                # 顯示連接信息
                 info_text = f"{bound_ip}:{bound_port}"
                 if bound_ip == "0.0.0.0":
                     info_text += " (監聽所有接口)"
                 self.connection_info_label.setText(info_text)
                 self.connection_info_label.setStyleSheet("color: #00E5FF; font-size: 9pt;")
             except Exception as e:
-                logger.error(f"獲取連接信息失敗: {e}")
+                logger.error(f"獲取 UDP 連接信息失敗: {e}")
                 self.connection_info_label.setText(t("get_connection_info_failed", "獲取失敗"))
                 self.connection_info_label.setStyleSheet("color: #FF5555; font-size: 9pt;")
+        elif mode_data == "udp":
+            self.connection_info_label.setText(t("not_connected", "未連接"))
+            self.connection_info_label.setStyleSheet("color: #888888; font-size: 9pt;")
+        # TCP 連接信息
+        elif mode_data == "tcp" and self.tcp_receiver and self.tcp_receiver.is_connected and self.tcp_receiver.socket:
+            try:
+                if self.tcp_receiver.is_server and self.tcp_receiver.socket:
+                    sockname = self.tcp_receiver.socket.getsockname()
+                    bound_ip = sockname[0]
+                    bound_port = sockname[1]
+                    info_text = f"{bound_ip}:{bound_port} (伺服器模式)"
+                    if bound_ip == "0.0.0.0":
+                        info_text += " (監聽所有接口)"
+                elif self.tcp_receiver.socket:
+                    sockname = self.tcp_receiver.socket.getsockname()
+                    bound_ip = sockname[0]
+                    bound_port = sockname[1]
+                    info_text = f"{bound_ip}:{bound_port} (客戶端)"
+                else:
+                    info_text = f"{self.tcp_receiver.ip}:{self.tcp_receiver.port}"
+                self.tcp_connection_info_label.setText(info_text)
+                self.tcp_connection_info_label.setStyleSheet("color: #00E5FF; font-size: 9pt;")
+            except Exception as e:
+                logger.error(f"獲取 TCP 連接信息失敗: {e}")
+                self.tcp_connection_info_label.setText(t("get_connection_info_failed", "獲取失敗"))
+                self.tcp_connection_info_label.setStyleSheet("color: #FF5555; font-size: 9pt;")
+        elif mode_data == "tcp":
+            self.tcp_connection_info_label.setText(t("not_connected", "未連接"))
+            self.tcp_connection_info_label.setStyleSheet("color: #888888; font-size: 9pt;")
+        # SRT 連接信息
+        elif mode_data == "srt" and self.srt_receiver and self.srt_receiver.is_connected and self.srt_receiver.socket:
+            try:
+                if self.srt_receiver.is_listener and self.srt_receiver.socket:
+                    sockname = self.srt_receiver.socket.getsockname()
+                    bound_ip = sockname[0]
+                    bound_port = sockname[1]
+                    info_text = f"{bound_ip}:{bound_port} (監聽模式)"
+                    if bound_ip == "0.0.0.0":
+                        info_text += " (監聽所有接口)"
+                elif self.srt_receiver.socket:
+                    sockname = self.srt_receiver.socket.getsockname()
+                    bound_ip = sockname[0]
+                    bound_port = sockname[1]
+                    info_text = f"{bound_ip}:{bound_port} (呼叫模式)"
+                else:
+                    info_text = f"{self.srt_receiver.ip}:{self.srt_receiver.port}"
+                self.srt_connection_info_label.setText(info_text)
+                self.srt_connection_info_label.setStyleSheet("color: #00E5FF; font-size: 9pt;")
+            except Exception as e:
+                logger.error(f"獲取 SRT 連接信息失敗: {e}")
+                self.srt_connection_info_label.setText(t("get_connection_info_failed", "獲取失敗"))
+                self.srt_connection_info_label.setStyleSheet("color: #FF5555; font-size: 9pt;")
+        elif mode_data == "srt":
+            self.srt_connection_info_label.setText(t("not_connected", "未連接"))
+            self.srt_connection_info_label.setStyleSheet("color: #888888; font-size: 9pt;")
         else:
             self.connection_info_label.setText(t("not_connected", "未連接"))
             self.connection_info_label.setStyleSheet("color: #888888; font-size: 9pt;")
@@ -2892,7 +3215,7 @@ class MainWindow(QMainWindow):
                 sources = self.ndi_capture.list_sources()
             else:
                 # 創建臨時接收器來獲取源列表
-                from obs_ndi import NDI_Receiver
+                from capture.obs_ndi import NDI_Receiver
                 temp_receiver = NDI_Receiver()
                 sources = temp_receiver.list_sources(refresh=True)
                 temp_receiver.disconnect()
@@ -3076,7 +3399,7 @@ class MainWindow(QMainWindow):
     
     def switch_to_4m(self):
         """切換 MAKCU 到 4M 波特率"""
-        from mouse import switch_to_4m
+        from utils.mouse import switch_to_4m
         self.log("正在切換到 4M 波特率...")
         if switch_to_4m():
             self.log("✓ 成功切換到 4M 波特率")
@@ -3284,7 +3607,33 @@ class MainWindow(QMainWindow):
             try:
                 if mode_data == "udp" and self.udp_receiver:
                     stats = self.udp_receiver.get_performance_stats()
+                elif mode_data == "tcp" and self.tcp_receiver:
+                    stats = self.tcp_receiver.get_performance_stats()
+                elif mode_data == "srt" and self.srt_receiver:
+                    stats = self.srt_receiver.get_performance_stats()
                     # UDP 模式使用自己的 FPS 統計
+                    self.capture_fps = stats['current_fps']
+                    queue_info = f"{t('detection_queue', '檢測隊列')}: {self.frame_processing_queue.qsize()}/{self.frame_processing_queue.maxsize}"
+                    stats_text = (f"{t('receive_fps', '接收 FPS')}: {stats['current_fps']:.1f} | "
+                                f"{t('process_fps', '處理 FPS')}: {stats.get('processing_fps', stats['current_fps']):.1f} | "
+                                f"{t('decode_fps', '解碼 FPS')}: {stats.get('decoding_fps', stats['current_fps']):.1f}\n"
+                                f"{t('buffer', '緩衝')}: {stats.get('buffer_size_bytes', 0)}{t('bytes', ' bytes')} | "
+                                f"{t('queue', '隊列')}: {stats.get('queue_size', 0)} | "
+                                f"{t('delay', '延遲')}: {stats.get('receive_delay_ms', 0):.1f}ms | {queue_info}")
+                elif mode_data == "tcp" and self.tcp_receiver:
+                    stats = self.tcp_receiver.get_performance_stats()
+                    # TCP 模式使用自己的 FPS 統計
+                    self.capture_fps = stats['current_fps']
+                    queue_info = f"{t('detection_queue', '檢測隊列')}: {self.frame_processing_queue.qsize()}/{self.frame_processing_queue.maxsize}"
+                    stats_text = (f"{t('receive_fps', '接收 FPS')}: {stats['current_fps']:.1f} | "
+                                f"{t('process_fps', '處理 FPS')}: {stats.get('processing_fps', stats['current_fps']):.1f} | "
+                                f"{t('decode_fps', '解碼 FPS')}: {stats.get('decoding_fps', stats['current_fps']):.1f}\n"
+                                f"{t('buffer', '緩衝')}: {stats.get('buffer_size_bytes', 0)}{t('bytes', ' bytes')} | "
+                                f"{t('queue', '隊列')}: {stats.get('queue_size', 0)} | "
+                                f"{t('delay', '延遲')}: {stats.get('receive_delay_ms', 0):.1f}ms | {queue_info}")
+                elif mode_data == "srt" and self.srt_receiver:
+                    stats = self.srt_receiver.get_performance_stats()
+                    # SRT 模式使用自己的 FPS 統計
                     self.capture_fps = stats['current_fps']
                     queue_info = f"{t('detection_queue', '檢測隊列')}: {self.frame_processing_queue.qsize()}/{self.frame_processing_queue.maxsize}"
                     stats_text = (f"{t('receive_fps', '接收 FPS')}: {stats['current_fps']:.1f} | "

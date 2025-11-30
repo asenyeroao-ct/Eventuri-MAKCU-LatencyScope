@@ -21,7 +21,7 @@ def _get_translation(key: str, default: Optional[str] = None) -> str:
     global _language_manager
     if _language_manager is None:
         try:
-            from language_manager import get_language_manager
+            from ui.language_manager import get_language_manager
             _language_manager = get_language_manager()
         except Exception:
             # 如果無法載入語言管理器，返回默認值

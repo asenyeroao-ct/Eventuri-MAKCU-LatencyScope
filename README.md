@@ -207,13 +207,47 @@ The MAKCU device is automatically detected. Supported devices include:
 - Check detection region covers the marker area
 - Ensure detection size matches marker size
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
-[Add your license here]
+Copyright (c) 2025 asenyeroao-ct  
+All rights reserved.
+
+本專案採用嚴格的授權條款。除明確允許的範圍外，所有權利均保留。
+
+**允許的使用：**
+- 個人、非商業性質的安裝與使用
+- 在不修改、不移除著作權資訊的前提下閱讀與研究
+
+**禁止的行為：**
+- 修改或製作衍生作品
+- 商業用途
+- 重新發布與散佈
+- 移除或隱藏著作權聲明
+
+任何超出授權範圍的使用行為，必須事先取得原作者 **書面授權**。
+
+詳細授權條款請參閱 [LICENSE](LICENSE) 文件。
+
+---
+
+Copyright (c) 2025 asenyeroao-ct  
+All rights reserved.
+
+This project is licensed under strict terms. All rights are reserved except as explicitly permitted.
+
+**Permitted Use:**
+- Personal, non-commercial installation and use
+- Reading and studying without modifying or removing copyright notices
+
+**Prohibited Actions:**
+- Modification or derivative works
+- Commercial use
+- Redistribution or re-uploading
+- Removal or alteration of copyright information
+
+Any use beyond the permitted scope requires prior **written authorization** from the author.
+
+For full license terms, please see the [LICENSE](LICENSE) file.
 
 ## Acknowledgments
 

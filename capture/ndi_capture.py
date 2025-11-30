@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # 嘗試導入 NDI 模組
 try:
-    from obs_ndi import NDI_Receiver
+    from capture.obs_ndi import NDI_Receiver
     NDI_AVAILABLE = True
 except ImportError as e:
     NDI_AVAILABLE = False

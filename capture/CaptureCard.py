@@ -298,7 +298,7 @@ if __name__ == "__main__":
     
     # 方式 1: 使用現有的 config 對象
     from config import config
-    from CaptureCard import create_capture_card_camera, get_capture_card_region
+    from capture.CaptureCard import create_capture_card_camera, get_capture_card_region
     
     # 創建相機
     camera = create_capture_card_camera(config)
