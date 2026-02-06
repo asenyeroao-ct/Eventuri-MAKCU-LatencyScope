@@ -1,15 +1,17 @@
 # Eventuri-MAKCU-LatencyScope
 
-Eventuri-MAKCU LatencyScope measures end-to-end 2PC capture latency across OBS UDP, NDI and capture cards. It watches incoming frames for a configurable color marker, then triggers MAKCU left-click so you can benchmark and compare real input-to-action delay.
+Eventuri-MAKCU LatencyScope measures end-to-end 2PC capture latency across OBS UDP, TCP, SRT, NDI and capture cards. It watches incoming frames for a configurable color marker, then triggers MAKCU left-click so you can benchmark and compare real input-to-action delay.
 
 ## Overview
 
-LatencyScope is a high-performance latency measurement tool designed for two-PC streaming setups. It captures video frames from various sources (OBS UDP streams, NDI, or capture cards), detects a configurable color marker in real-time, and triggers a MAKCU mouse click to measure the complete input-to-action latency chain.
+LatencyScope is a high-performance latency measurement tool designed for two-PC streaming setups. It captures video frames from various sources (OBS UDP/TCP/SRT streams, NDI, or capture cards), detects a configurable color marker in real-time, and triggers a MAKCU mouse click to measure the complete input-to-action latency chain.
 
 ## Features
 
 - **Multiple Capture Sources**
   - OBS UDP (Motion JPEG over UDP)
+  - OBS TCP (Motion JPEG over TCP)
+  - OBS SRT (Motion JPEG over SRT - Secure Reliable Transport)
   - NDI (Network Device Interface)
   - Capture Cards (via DirectShow/MSMF)
   - Screen Capture (BetterCam, DXGI, MSS)
@@ -85,6 +87,8 @@ pip install -r requirements.txt
    - Edit `config.json` or use the GUI to select capture mode:
      - `capture_card`: Use capture card input
      - `udp`: Receive OBS UDP stream
+     - `tcp`: Receive OBS TCP stream
+     - `srt`: Receive OBS SRT stream
      - `ndi`: Use NDI source
      - `bettercam`: Screen capture with BetterCam
      - `mss`: Screen capture with MSS
@@ -154,6 +158,32 @@ The MAKCU device is automatically detected. Supported devices include:
 }
 ```
 
+#### OBS TCP Settings
+
+```json
+{
+  "tcp_ip": "192.168.5.52",
+  "tcp_port": 1234,
+  "target_fps": 240,
+  "is_server": false
+}
+```
+
+#### OBS SRT Settings
+
+```json
+{
+  "srt_ip": "192.168.5.52",
+  "srt_port": 1234,
+  "target_fps": 240,
+  "is_listener": false
+}
+```
+
+**Note**: SRT requires the SRT C library and Python bindings. Install with:
+- Windows: Download SRT from https://github.com/Haivision/srt
+- Python bindings: `pip install pysrt` or `pip install python-srt`
+
 ## Architecture
 
 ### Core Components
@@ -164,6 +194,8 @@ The MAKCU device is automatically detected. Supported devices include:
 - **config_manager.py**: Configuration management
 - **CaptureCard.py**: Capture card interface
 - **OBS_UDP.py**: OBS UDP stream receiver
+- **OBS_TCP.py**: OBS TCP stream receiver
+- **OBS_SRT.py**: OBS SRT stream receiver
 - **ndi_capture.py**: NDI stream receiver
 - **bettercam_capture.py**: BetterCam screen capture
 - **dxgi_capture.py**: DXGI screen capture
@@ -197,7 +229,8 @@ The MAKCU device is automatically detected. Supported devices include:
 
 - Check capture source settings (resolution, FPS)
 - For capture cards, verify FourCC format support
-- For OBS UDP, check network bandwidth
+- For OBS UDP/TCP/SRT, check network bandwidth and connection settings
+- For OBS SRT, ensure SRT library is properly installed
 - For screen capture, ensure GPU acceleration is enabled if available
 
 ### Color Detection Not Working
