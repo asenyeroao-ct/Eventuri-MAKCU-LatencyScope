@@ -1,0 +1,116 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyx
+*.c
+*.h
+*.html
+*.o
+*.egg
+*.egg-info/
+dist/
+build/
+*.egg-info
+.eggs/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.cursor
+
+# Logs
+*.log
+debug.log
+build.log
+build_error.log
+*.log.*
+
+# Compiled files
+*.exe
+*.dll
+*.pyd
+*.pyc
+*.pyo
+*.so
+*.whl
+
+# OBS_UDP compiled files
+OBS_UDP.cp312-win_amd64.pyd
+OBS_UDP*.pyd
+OBS_UDP*.so
+
+# PyInstaller
+*.spec
+dist/
+build/
+*.spec
+
+# Config (if contains sensitive data)
+# config.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.rar
+*.zip
+*.7z
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Project specific
+humanbenchmark.rar
+*.rar
+

@@ -1,0 +1,15 @@
+opencv-python>=4.8.0
+numpy>=1.24.0
+pyserial>=3.5
+PyQt5>=5.15.0
+mss>=9.0.0
+bettercam>=1.0.0
+dxcam>=0.0.5
+# BetterCam GPU mode requires cupy (select one based on CUDA version)
+cupy-cuda12x>=12.0.0  # CUDA 12.x (precompiled version, fast installation)
+# SRT support (optional, for OBS_SRT.py)
+# Note: Requires SRT C library to be installed first, then install Python bindings
+# Windows: Download and install SRT from https://github.com/Haivision/srt
+# Then install: pip install pysrt or python-srt
+# pysrt>=1.3.0  # SRT protocol support (requires SRT C library to be installed first)
+
